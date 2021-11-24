@@ -1,0 +1,169 @@
+<!doctype html>
+<html ng-app="nodeTodo">
+        <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&display=swap" rel="stylesheet">
+
+                <title>Node/Angular Todo App</title>
+
+                <style>
+                        html{                                         
+                                overflow-y:scroll; 
+                        }
+
+                        body{ 
+                                padding-top:50px; 
+                                background-color: tan;
+                                font-family: 'Architects Daughter', cursive;
+                                color: darkslategrey;
+                        }
+
+                        h1{
+                                background-color: bisque;
+                                margin-bottom: 0;
+                        }
+
+                        .notes{
+                                position: relative;
+                                box-shadow: 10px 10px 5px grey;
+                                overflow:hidden;
+                                margin-bottom: 50px;
+                                
+                        }
+
+                        .notes:after{
+                                content: "";
+                                position:absolute;
+                                margin:-25px;
+                                left: 0;
+                                top: 0;
+                                width:50px;
+                                height:50px;
+                                transform:rotate(45deg);
+                                background-color:tan;
+
+                        }
+
+                        .custom-btn{
+                                background-color: coral;
+                                box-shadow: 3px 3px 5px grey;
+                                color: darkslategrey;
+                        }
+
+                        .custom-btn:focus{
+                                box-shadow: 3px 3px 5px grey;
+                        }
+
+                        .yellow-notes{
+                                background-color: lightyellow;
+                        }
+
+                        input[type="checkbox"] {
+                                appearance: none;
+                                background-color: lightyellow;
+                                width: 1.15em;
+                                height: 1.15em;
+                                border: 0.15em solid currentColor;
+                                border-radius: 0.20em;
+                                display: grid;
+                                place-content: center;
+                        }
+                        
+                        input[type="checkbox"]::before {
+                                content: "";
+                                width: 0.65em;
+                                height: 0.65em;
+                                transform: scale(0);
+                                box-shadow: inset 1em 1em darkslategrey;
+                                transform-origin: bottom left;
+                                clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+                        }
+
+                        input[type="checkbox"]:checked::before {
+                                transform: scale(1);
+                        }
+
+                        input[type=text] {
+                                background-color: tan;
+                                border: 0.1em solid darkslategrey;
+                        }
+
+                        input[type=text]:focus {
+                                background-color: tan;
+                                border: 0.15em solid darkslategrey;
+                                box-shadow: none;
+                        }  
+                </style>
+
+                <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+                <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+                <script src="core.js"></script>
+        </head>
+
+        <body ng-controller="mainController">
+                <div class="container">
+
+                        <div class="row">
+                                <div class="col"></div>
+                                <div class="col-6">
+                                        <div class="text-center notes">
+                                                <h1 class="py-3 font-weight-bold">ToDo Lista</h1>
+                                        </div>
+                                </div>
+                                <div class="col"></div>
+                        </div>
+
+                        <div class="row text-center">
+                                <div class="col"></div>
+                                <button type="button" class="col btn mx-2 custom-btn" ng-click="setTab('undone')">Do zrobienia</button>
+                                <button type="button" class="col btn mx-2 custom-btn" ng-click="setTab('all')">Wszystkie</button>
+                                <button type="button" class="col btn mx-2 custom-btn" ng-click="setTab('done')">Zrobione</button>    
+                                <div class="col"></div>  
+                        </div>
+
+                        <div class="row">
+                                <div class="col"></div>
+                                <div class="col notes yellow-notes my-5 pt-4 pb-3 pl-5">
+                                        <span ng-show="selectedTab=='undone' || selectedTab=='all'">
+                                                        <div ng-show="!todo.done" ng-repeat="todo in todos">
+                                                                <label class="row">
+                                                                        <div class="col"><input type="checkbox" ng-click="updateTodo(todo._id, todo.done)" ng-model="todo.done"></div>
+                                                                        <div class="col-8">{{ todo.text }}</div>
+                                                                        <div class="col"><button class="btn btn-sm" ng-click="deleteTodo(todo._id)">X</button></div>
+                                                                </label>   
+                                                        </div>
+                                        </span>
+                                        <span ng-show="selectedTab=='done' || selectedTab=='all'">
+
+                                                <div ng-show="todo.done" ng-repeat="todo in todos">
+                                                        <div class="row">
+                                                                <div class="col"><input type="checkbox" ng-click="updateTodo(todo._id, todo.done)" ng-model="todo.done"></div>
+                                                                <div class="col-8"><s>{{ todo.text }}</s></div>
+                                                                <div class="col"><button class="btn btn-sm" ng-click="deleteTodo(todo._id)">X</button></div>
+                                                        </div>    
+                                                </div>
+                                        </span>
+                                </div> 
+                                <div class="col"></div>
+                        </div>
+
+                        <div class="row">
+                                <div class="col"></div>
+                                <div class="col-6 text-center">
+                                        <form>
+                                                <div class="form-group">
+                                                        <input type="text" class="form-control input-lg text-center"
+                                                                placeholder="Kolejne zadanie..." ng-model="formData.text">
+                                                </div>
+                                                <button type="submit" class="btn custom-btn" ng-click="createTodo()">Dodaj</button>
+                                        </form>
+                                </div>
+                                <div class="col"></div>
+                        </div>
+                </div>
+        </body>
+</html>
